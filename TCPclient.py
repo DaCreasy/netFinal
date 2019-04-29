@@ -10,13 +10,21 @@
  Source: Computer Networking a Top Down Approach 6th Edition 
 """
 
-from socket import *
+import socket
 serverName = '172.25.43.182' #IP address of Damian's computer acting as our server
-serverPort = 12000 #arbitrary port #
-clientSocket = socket(AF_INET, SOCK_STREAM)
+serverPort = 12001 #arbitrary port #
+
+clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect((serverName,serverPort))
-sentence = raw_input("Input lowercase sentence:")
-clientSocket.send(sentence)
-echo = clientSocket.recv(1024)
-print('From Server:', echo)
+    
+sentence = input("Input lowercase sentence:")
+encoded = str.encode(sentence)
+
+try:
+    clientSocket.send(encoded)
+except Exception:
+    clientSocket.close()
+
+echo = clientSocket.recv(64)
+print('From Server:', echo.decode())
 clientSocket.close()
