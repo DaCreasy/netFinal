@@ -2,7 +2,7 @@ from socket import *
 
 serverPort = 12000
 serverSocket = socket(AF_INET, SOCK_STREAM)
-severSocket.bind(('',serverPort))
+serverSocket.bind(('',serverPort))
 serverSocket.listen(1)
 print("Server is ready and listening for connections...")
 while 1:
