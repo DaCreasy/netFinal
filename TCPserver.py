@@ -1,20 +1,25 @@
 from socket import *
+import threading
 from datetime import datetime
 
 welcome = "You've successfully connected to the room! Welcome!"
 
 def newClient(client, addr):
+
+    userName = "User["+ addr[0] +"]"
     
     # Welcome the newly connected client
     client.send(str.encode(welcome))
+    print(userName + " has received welcome message.")
     
     # Begin looping for receiving client messages
     while 1:
         try:
+            print("Listening to " + userName)
             clientMSG = client.recv(1024)
             if clientMSG:
                 # Log the client message and the time at which it is received
-                logMSG = "User["+ addr[0] +"] @ ["+datetime.now()+"] " + clientMSG.decode()
+                logMSG = userName + " @ ["+datetime.now()+"] " + clientMSG.decode()
                 print(logMSG)
                 
                 for user in users:
@@ -25,11 +30,14 @@ def newClient(client, addr):
                             user.close()
                             users.remove(user)
             else:
+                # TODO: Thread has to be killed here or handled in some way...
+                # This part loops infinitely if a user disconnects
+                print("Removing " + userName)
                 users.remove(client)
         except:
             continue
                             
-serverPort = 12010
+serverPort = 12011
 server = socket(AF_INET, SOCK_STREAM)
 server.bind(('',serverPort))
 
@@ -49,7 +57,7 @@ while 1:
     print("User["+ addr[0] +"] has joined...")
     
     # Start a new thread for the new user and begin listening for messages
-    clientThread = Thread(target = newClient, args = (client,addr,), daemon = True)
+    clientThread = threading.Thread(target = newClient, args = (client,addr,), daemon = True)
     clientThread.start()
     
 client.close()
