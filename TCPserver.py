@@ -1,3 +1,18 @@
+# -*- coding: utf-8 -*-
+"""
+author Damian Creasy
+author Tim Yarosh
+version 1.0
+section CS475
+ 
+Project Description: We wanted to simulate, using a standard TCP connection 
+between a client and a server, the functionalities of a chat room. 
+ 
+Basic TCP client class. 
+Adapted from Computer Networking a Top Down Approach 6th Edition code in ch 2
+Source:  
+"""
+
 from socket import *
 import threading
 from datetime import datetime
@@ -15,29 +30,43 @@ def newClient(client, addr):
     # Begin looping for receiving client messages
     while 1:
         try:
-            print("Listening to " + userName)
             clientMSG = client.recv(1024)
+            clientMSG = clientMSG.decode()
+
+            # This checks if the message is not empty as a result of a closed connection
             if clientMSG:
                 # Log the client message and the time at which it is received
-                logMSG = userName + " @ ["+datetime.now()+"] " + clientMSG.decode()
+                logMSG = userName + " @ ["+ str(datetime.now())+"] : " + clientMSG
                 print(logMSG)
-                
+
+                # Broadcast the message to all clients other than the one who sent the message
+                userMSG = userName + " says: " + clientMSG
                 for user in users:
                     if user != client:
                         try:
-                            user.send(str.encode(logMSG))
+                            user.send(str.encode(userMSG))
                         except:
                             user.close()
                             users.remove(user)
+                    
+
+            # if the message is a result of a closed connection, remove the user from the list of active clients and end this thread by breaking from the while loop
             else:
-                # TODO: Thread has to be killed here or handled in some way...
-                # This part loops infinitely if a user disconnects
                 print("Removing " + userName)
-                users.remove(client)
+                endConn(client)
+                break
+        # Something unexpected occurred and the client must be removed from the list
         except:
-            continue
-                            
-serverPort = 12011
+            print("Removing " + userName)
+            endConn(client)
+            break
+
+
+def endConn(client):
+    users.remove(client)
+    client.close()
+    
+serverPort = 12000
 server = socket(AF_INET, SOCK_STREAM)
 server.bind(('',serverPort))
 
