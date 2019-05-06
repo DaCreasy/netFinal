@@ -25,28 +25,41 @@ portNum = 12000 #arbitrary port #
 
 
 def sendMsg(clientSocket):
+    print('Send Listener has begun.')
     while True:
+        print('Top of send while...')
         msg = input('')
+        print('Encoding msg...')
         encoded_msg = str.encode(msg)
+        print('Msg encoded...')
         try:
             clientSocket.send(encoded_msg)
+            print('Msg sent...')
         except:
+            print('Error sending msg... closing connection...')
             clientSocket.close()
             break
 
 def receiveMsg(clientSocket):
+    print('Receive Listener has begun...')
     while True:
+        print('Top of rcv while...')
         try:
             msg = clientSocket.recv(2048)
+            print('Msg received...')
             msg = msg.decode()
+            print('Msg decoded...')
 
             if msg:
+                print('Msg valid, printing...')
                 print(msg)
             else:
                 print('Connection lost... exiting program')
+                clientSocket.close()
                 break
         except:
             print('Connection lost... exiting program')
+            clientSocket.close()
             break
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
